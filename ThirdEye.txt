@@ -1,0 +1,117 @@
+#include <LiquidCrystal_I2C.h> // Library for LCD
+LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 16, 2); // Change to (0x27,16,2) for 16x2 LCD.my address is (0x3F)
+#define buzzer 8
+#define motor 7
+#define panic 3
+int water = 2;
+int trigPin = A1;
+int echoPin = A0;
+
+long distance;
+long distanceInch;
+long duration;
+
+void setup()
+{
+
+ pinMode(trigPin, OUTPUT);
+ pinMode(echoPin, INPUT);
+ pinMode(buzzer,OUTPUT); 
+  pinMode(motor,OUTPUT); 
+ pinMode(panic, INPUT);
+ pinMode(water, INPUT);
+
+ lcd.setCursor(0,0);
+ lcd.print("THIRD EYE FOR");
+ lcd.setCursor(0,1);
+ lcd.print("BLIND USING IOT");
+ delay(2000);
+}
+
+void loop()
+ {
+ ULTRASONIC();
+ lcd.clear();
+ lcd.setCursor(0,0);
+ lcd.print("DISTANCE CM:");
+ lcd.print(distance); 
+ lcd.setCursor(0,1);
+ lcd.print("DISTANCE INCH:");
+ lcd.print(distanceInch); 
+ Serial.println(distance);
+delay(500);
+
+if (distanceInch < 15)
+  { 
+    lcd.clear();
+     delay(500);  
+         digitalWrite(motor, HIGH);
+        delay(1000);   
+   digitalWrite(motor, LOW);  
+      delay(1000);   
+      lcd.setCursor(0,0);
+ lcd.print("OBJECT DETECTED");  
+      beep();
+      beep();
+      beep();
+      beep();
+      beep();
+    delay(500);   
+ Serial.println("sensornewgsm.php?client=iot2k23130&s1=OBJECT_DETECTED&s2=NA&s3=NA&s4=NA&s5=NA&sms=NO&msg=NA");
+         digitalWrite(motor, HIGH);
+        delay(3000);   
+   digitalWrite(motor, LOW);  
+      delay(1000);   
+  }
+ if ( digitalRead(panic)==HIGH) 
+{
+lcd.clear();
+    lcd.setCursor(0,0); 
+  lcd.print("NEED HELP...");
+         delay(2000); 
+Serial.println("sensornewgsm.php?client=iot2k23130&s1=NA&s2=ALERT&s3=NA&s4=NA&s5=NA&sms=NO&msg=I%20AM%20IN%20TROUBLE%20NEED%20HELP");
+    delay(1000); 
+        beep();
+      beep();
+      beep();
+      beep();
+      beep(); 
+      delay(1000);   
+   lcd.clear();
+}
+if ( digitalRead(water)==HIGH) 
+{
+lcd.clear();
+    lcd.setCursor(0,0); 
+  lcd.print("WATER DETECTED");
+     beep();
+      beep();
+      beep();
+      beep();
+      beep();
+   delay(2000); 
+   Serial.println("sensornewgsm.php?client=iot2k23130&s1=NA&s2=NA&s3=ALERT&s4=NA&s5=NA&sms=NO&msg=NA");
+    delay(2000); 
+    lcd.clear();
+}
+}
+
+void ULTRASONIC()
+{
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration*0.434/12;
+  distanceInch = duration*1.0133/15;
+} 
+
+void beep()
+{
+  tone(buzzer, 100000,5000);
+  delay(750);
+  noTone(buzzer);
+  delay(7500);
+}
